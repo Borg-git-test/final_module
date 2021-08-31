@@ -13,6 +13,8 @@ class FormQuarter extends FormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $year = date('Y');
+
     $header = [
       'year' => t('Year'),
       'jan' => t('Jan'),
@@ -34,72 +36,74 @@ class FormQuarter extends FormBase {
       'ytd' => t('YTD'),
     ];
 
-//    $rows = [];
+    $value = [];
 //    foreach ($form as $value) {
-//    $form['year'] = [
-//        '#type' => 'integer',
-//        '#value' => 2000,
-//      ];
-//    $form['jan'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['feb'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['mar'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['q1'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['apr'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['may'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['jun'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['q2'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['jul'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['aug'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['sep'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['q3'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['oct'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['nov'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['dec'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['q4'] = [
-//        '#type' => 'integer',
-//      ];
-//    $form['ytd'] = [
-//        '#type' => 'markup',
-//        '#markup' => 'add',
-//      ];
+    $value['year'] = [
+        '#markup' => $year,
+      ];
+    $value['jan'] = [
+        '#type' => 'number',
+      ];
+    $value['feb'] = [
+        '#type' => 'number',
+      ];
+    $value['mar'] = [
+        '#type' => 'number',
+      ];
+    $value['q1'] = [
+        '#type' => 'number',
+      ];
+    $value['apr'] = [
+        '#type' => 'number',
+      ];
+    $value['may'] = [
+        '#type' => 'number',
+      ];
+    $value['jun'] = [
+        '#type' => 'number',
+      ];
+    $value['q2'] = [
+        '#type' => 'number',
+      ];
+    $value['jul'] = [
+        '#type' => 'number',
+      ];
+    $value['aug'] = [
+        '#type' => 'number',
+      ];
+    $value['sep'] = [
+        '#type' => 'number',
+      ];
+    $value['q3'] = [
+        '#type' => 'number',
+      ];
+    $value['oct'] = [
+        '#type' => 'number',
+      ];
+    $value['nov'] = [
+        '#type' => 'number',
+      ];
+    $value['dec'] = [
+        '#type' => 'number',
+      ];
+    $value['q4'] = [
+        '#type' => 'number',
+      ];
+    $value['ytd'] = [
+        '#markup' => 'add',
+      ];
 //      $rows[] = $value;
 //    }
 
     $form['table'] = [
       '#type' => 'table',
       '#header' => $header,
-      '#rows' => $form,
+//      '#rows' => [
+//        0 => $value,
+//      ],
+//      $value,
     ];
+    $form['table'][] = $value;
 //    $form['submit'] = [
 //      '#type' => 'submit',
 //      '#value' => $this->t('Delete all selected'),
