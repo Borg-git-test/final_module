@@ -1,5 +1,10 @@
-borg.cats_list:
+borg.quarter:
   title: 'Quarter'
   parent: main
   menu_name: main
+  route_name: borg.quarter
+
+borg.admin.quarter:
+  title: 'Quarter'
+  parent: system.admin_content
   route_name: borg.quarter

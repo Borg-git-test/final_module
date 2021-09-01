@@ -11,9 +11,59 @@ class FormQuarter extends FormBase {
     return 'quarter';
   }
 
+  protected $row_id = 0;
+  protected $table_id = 0;
+
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $year = date('Y');
+    $form['add_table'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Add Table'),
+      '#ajax' => [
+        'callback' => '::pleaseWork',
+        'wrapper' => 'quarter',
+      ],
+    ];
+
+    $form['add_row'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Add Year'),
+      '#ajax' => [
+        'callback' => '::pleaseWork',
+        'wrapper' => 'quarter',
+      ],
+    ];
+
+    $form['form'] = [
+      $this->buildTable($form),
+    ];
+    $form['#attributes'] = [
+      'id' => 'quarter',
+    ];
+//    $this->row_id++;
+    return $form;
+  }
+
+  function pleaseWork($please_work) {
+    return $please_work;
+  }
+
+  public function buildTables(array $form) {
+    $form['tables'] = ['#attributes' => ['id' => 'tables']];
+    for ($i = 0; $i <= $this->table_id; $i++) {
+      $form['tables'][$i] = $this->buildTable($form);
+    }
+    $this->table_id++;
+    return $form['tables'];
+  }
+
+  public function buildTable(array $form) {
+
+//    $q1 = sprintf('%0.2g', (($form_state->get('jan') + $form_state->get('feb') + $form_state->get('mar') + 1) / 3));
+//    $q2 = sprintf('%0.2g', (($form_state->get('apr') + $form_state->get('may') + $form_state->get('jun') + 1) / 3));
+//    $q3 = sprintf('%0.2g', (($form_state->get('jul') + $form_state->get('aug') + $form_state->get('sep') + 1) / 3));
+//    $q4 = sprintf('%0.2g', (($form_state->get('oct') + $form_state->get('nov') + $form_state->get('dec') + 1) / 3));
+//    $ytd = sprintf('%0.2g', (($q1 + $q2 + $q3 + $q4 + 1) / 4));
 
     $header = [
       'year' => t('Year'),
@@ -36,82 +86,49 @@ class FormQuarter extends FormBase {
       'ytd' => t('YTD'),
     ];
 
-    $value = [];
-//    foreach ($form as $value) {
-    $value['year'] = [
-        '#markup' => $year,
-      ];
-    $value['jan'] = [
-        '#type' => 'number',
-      ];
-    $value['feb'] = [
-        '#type' => 'number',
-      ];
-    $value['mar'] = [
-        '#type' => 'number',
-      ];
-    $value['q1'] = [
-        '#type' => 'number',
-      ];
-    $value['apr'] = [
-        '#type' => 'number',
-      ];
-    $value['may'] = [
-        '#type' => 'number',
-      ];
-    $value['jun'] = [
-        '#type' => 'number',
-      ];
-    $value['q2'] = [
-        '#type' => 'number',
-      ];
-    $value['jul'] = [
-        '#type' => 'number',
-      ];
-    $value['aug'] = [
-        '#type' => 'number',
-      ];
-    $value['sep'] = [
-        '#type' => 'number',
-      ];
-    $value['q3'] = [
-        '#type' => 'number',
-      ];
-    $value['oct'] = [
-        '#type' => 'number',
-      ];
-    $value['nov'] = [
-        '#type' => 'number',
-      ];
-    $value['dec'] = [
-        '#type' => 'number',
-      ];
-    $value['q4'] = [
-        '#type' => 'number',
-      ];
-    $value['ytd'] = [
-        '#markup' => 'add',
-      ];
-//      $rows[] = $value;
-//    }
-
     $form['table'] = [
       '#type' => 'table',
       '#header' => $header,
-//      '#rows' => [
-//        0 => $value,
-//      ],
-//      $value,
+//      '#attributes' => ['id' => 'table'],
     ];
-    $form['table'][] = $value;
-//    $form['submit'] = [
-//      '#type' => 'submit',
-//      '#value' => $this->t('Delete all selected'),
-//    ];
-    return $form;
+
+    for ($i = $this->row_id; $i >= 0; $i--) {
+      $year = date('Y') - $i;
+      $form['table'][$i] = $this->buildRow($year, 0, 0, 0, 0, 0);
+    }
+    $this->row_id++;
+
+    return $form['table'];
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function buildRow($year, $q1, $q2, $q3, $q4, $ytd) {
+//    ((М1+М2+М3)+1)/3
+
+    $value = [
+      'year' => ['#markup' => $year],
+      'jan' => ['#type' => 'number'],
+      'feb' => ['#type' => 'number'],
+      'mar' => ['#type' => 'number'],
+      'q1' => ['#markup' => $q1],
+      'apr' => ['#type' => 'number'],
+      'may' => ['#type' => 'number'],
+      'jun' => ['#type' => 'number'],
+      'q2' => ['#markup' => $q2],
+      'jul' => ['#type' => 'number'],
+      'aug' => ['#type' => 'number'],
+      'sep' => ['#type' => 'number'],
+      'q3' => ['#markup' => $q3],
+      'oct' => ['#type' => 'number'],
+      'nov' => ['#type' => 'number'],
+      'dec' => ['#type' => 'number'],
+      'q4' => ['#markup' => $q4],
+      'ytd' => ['#markup' => $ytd],
+    ];
+    return $value;
+  }
+
+
+    public function submitForm(array &$form, FormStateInterface $form_state) {
 //    $value = $form['table']['#value'];
 //    $connect = Database::getConnection();
 //    $i = 0;
