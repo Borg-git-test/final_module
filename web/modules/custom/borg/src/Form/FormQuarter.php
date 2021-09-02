@@ -11,14 +11,15 @@ class FormQuarter extends FormBase {
     return 'quarter';
   }
 
-  protected $row_id = 0;
-  protected $table_id = 0;
+  public $row_id;
+  public $table_id = 0;
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $form['add_table'] = [
       '#type' => 'button',
       '#value' => $this->t('Add Table'),
+      '#submit' => ['::adder'],
       '#ajax' => [
         'callback' => '::pleaseWork',
         'wrapper' => 'quarter',
@@ -26,12 +27,20 @@ class FormQuarter extends FormBase {
     ];
 
     $form['add_row'] = [
-      '#type' => 'button',
+      '#type' => 'submit',
       '#value' => $this->t('Add Year'),
+      '#submit' => ['::add'],
       '#ajax' => [
-        'callback' => '::pleaseWork',
-        'wrapper' => 'quarter',
+//        'callback' => '::pleaseWork',
+//        'wrapper' => 'quarter',
+        'callback' => '::buildTable',
+        'wrapper' => 'table',
       ],
+    ];
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add'),
+//      '#submit' => ['::add'],
     ];
 
     $form['form'] = [
@@ -41,6 +50,7 @@ class FormQuarter extends FormBase {
       'id' => 'quarter',
     ];
 //    $this->row_id++;
+//    $form_state->set('tableRows', $this->row_id);
     return $form;
   }
 
@@ -48,12 +58,22 @@ class FormQuarter extends FormBase {
     return $please_work;
   }
 
+  function add(FormStateInterface $form_state) {
+//    $this->row_id = $form_state->get('tableRows');
+    ++$this->row_id;
+//    $form_state->set('tableRows', $this->row_id);
+  }
+
+//  function adder() {
+//    return ++$this->table_id;
+//  }
+
   public function buildTables(array $form) {
     $form['tables'] = ['#attributes' => ['id' => 'tables']];
     for ($i = 0; $i <= $this->table_id; $i++) {
       $form['tables'][$i] = $this->buildTable($form);
     }
-    $this->table_id++;
+//    $this->table_id++;
     return $form['tables'];
   }
 
@@ -89,20 +109,20 @@ class FormQuarter extends FormBase {
     $form['table'] = [
       '#type' => 'table',
       '#header' => $header,
-//      '#attributes' => ['id' => 'table'],
+      '#attributes' => ['id' => 'table'],
     ];
 
     for ($i = $this->row_id; $i >= 0; $i--) {
       $year = date('Y') - $i;
       $form['table'][$i] = $this->buildRow($year, 0, 0, 0, 0, 0);
     }
-    $this->row_id++;
+//    ++$this->row_id;
+//    $this->add();
 
     return $form['table'];
   }
 
   public function buildRow($year, $q1, $q2, $q3, $q4, $ytd) {
-//    ((М1+М2+М3)+1)/3
 
     $value = [
       'year' => ['#markup' => $year],
