@@ -11,79 +11,102 @@ class FormQuarter extends FormBase {
     return 'quarter';
   }
 
-  public $row_id;
-  public $table_id = 0;
+  /**
+   * @var string[]
+   *  Array of form tables by id and tables rows.
+   *
+   *  Eg:
+   * $this->tableRows = [
+   *   0 => 1,
+   *   1 => 3,
+   * ];
+   * Which means table with id 0 has one row and table 1 has 3 rows.
+   */
+  protected $rowId;
+
+  protected $r = 1;
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $this->rowId = is_null($this->rowId) ? [
+      $this->r => $this->r,
+    ] : $this->rowId;
+
     $form['add_table'] = [
-      '#type' => 'button',
+      '#type' => 'submit',
       '#value' => $this->t('Add Table'),
-      '#submit' => ['::adder'],
+      '#submit' => ['::addTable'],
       '#ajax' => [
         'callback' => '::pleaseWork',
         'wrapper' => 'quarter',
+//        'callback' => '::buildTables',
+//        'wrapper' => 'tables',
       ],
     ];
 
-    $form['add_row'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Add Year'),
-      '#submit' => ['::add'],
-      '#ajax' => [
-//        'callback' => '::pleaseWork',
-//        'wrapper' => 'quarter',
-        'callback' => '::buildTable',
-        'wrapper' => 'table',
-      ],
-    ];
+//    $form['add_row'] = [
+//      '#type' => 'submit',
+//      '#value' => $this->t('Add Year'),
+//      '#submit' => ['::addRows'],
+//      '#ajax' => [
+////        'callback' => '::pleaseWork',
+////        'wrapper' => 'quarter',
+//        'callback' => '::buildTable',
+//        'wrapper' => 'table',
+//      ],
+//    ];
+
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Add'),
+      '#value' => $this->t('Submit'),
 //      '#submit' => ['::add'],
     ];
+//    $form['tables'] = [
+//      '#type' => 'container',
+//    ];
 
     $form['form'] = [
-      $this->buildTable($form),
+//      '#type' => 'container',
+//      '#attributes' => ['id' => 'container'],
+      $this->buildTables($form),
     ];
     $form['#attributes'] = [
       'id' => 'quarter',
     ];
-//    $this->row_id++;
-//    $form_state->set('tableRows', $this->row_id);
+
     return $form;
   }
 
-  function pleaseWork($please_work) {
-    return $please_work;
+  function pleaseWork($pleaseWork) {
+    return $pleaseWork;
   }
 
-  function add(FormStateInterface $form_state) {
-//    $this->row_id = $form_state->get('tableRows');
-    ++$this->row_id;
-//    $form_state->set('tableRows', $this->row_id);
+  function addRows(array &$form, FormStateInterface $form_state) {
+    $id = $form_state->getTriggeringElement()['#name'];
+    ++$this->rowId[$id];
+    $form_state->setRebuild();
   }
 
-//  function adder() {
-//    return ++$this->table_id;
-//  }
+  function addTable(array &$form, FormStateInterface $form_state) {
+    $this->rowId[] = $this->r;
+    $form_state->setRebuild();
+  }
 
   public function buildTables(array $form) {
-    $form['tables'] = ['#attributes' => ['id' => 'tables']];
-    for ($i = 0; $i <= $this->table_id; $i++) {
-      $form['tables'][$i] = $this->buildTable($form);
+    $form['tables'] = [
+      '#attributes' => ['id' => 'tables'],
+      '#type' => 'container',
+    ];
+    foreach ($this->rowId as $tableId => $rows) {
+      $form['tables'][$tableId] = $this->buildTable($form, $tableId);
     }
-//    $this->table_id++;
+//    for ($i = -1; $i <= $this->table_id; $i++) {
+//      $form['tables'][$i] = $this->buildTable($form, $i);
+//    }
     return $form['tables'];
   }
 
-  public function buildTable(array $form) {
-
-//    $q1 = sprintf('%0.2g', (($form_state->get('jan') + $form_state->get('feb') + $form_state->get('mar') + 1) / 3));
-//    $q2 = sprintf('%0.2g', (($form_state->get('apr') + $form_state->get('may') + $form_state->get('jun') + 1) / 3));
-//    $q3 = sprintf('%0.2g', (($form_state->get('jul') + $form_state->get('aug') + $form_state->get('sep') + 1) / 3));
-//    $q4 = sprintf('%0.2g', (($form_state->get('oct') + $form_state->get('nov') + $form_state->get('dec') + 1) / 3));
-//    $ytd = sprintf('%0.2g', (($q1 + $q2 + $q3 + $q4 + 1) / 4));
+  public function buildTable(array $form, int $tableId) {
 
     $header = [
       'year' => t('Year'),
@@ -106,25 +129,38 @@ class FormQuarter extends FormBase {
       'ytd' => t('YTD'),
     ];
 
-    $form['table'] = [
-      '#type' => 'table',
-      '#header' => $header,
-      '#attributes' => ['id' => 'table'],
+    $form['tables'][$tableId] = [
+      'add_row' => [
+        '#type' => 'submit',
+        '#name' => $tableId,
+        '#value' => $this->t('Add Year'),
+        '#submit' => ['::addRows'],
+        '#ajax' => [
+          'callback' => '::pleaseWork',
+          'wrapper' => 'quarter',
+//          'callback' => '::buildTables',
+//          'wrapper' => $tableId,
+        ],
+      ],
+
+      'table' => [
+        '#type' => 'table',
+        '#header' => $header,
+        '#attributes' => ['id' => $tableId],
+      ],
     ];
 
-    for ($i = $this->row_id; $i >= 0; $i--) {
-      $year = date('Y') - $i;
-      $form['table'][$i] = $this->buildRow($year, 0, 0, 0, 0, 0);
+    for ($i = $this->rowId[$tableId]; $i > 0; $i--) {
+      $year = date('Y') - $i + $this->r;
+      $form['tables'][$tableId]['table'][$tableId . '-' . $i] = $this->buildRow($year, 0, 0, 0, 0, 0);
     }
-//    ++$this->row_id;
-//    $this->add();
 
-    return $form['table'];
+    return $form['tables'][$tableId];
   }
 
   public function buildRow($year, $q1, $q2, $q3, $q4, $ytd) {
 
-    $value = [
+    return [
       'year' => ['#markup' => $year],
       'jan' => ['#type' => 'number'],
       'feb' => ['#type' => 'number'],
@@ -144,7 +180,6 @@ class FormQuarter extends FormBase {
       'q4' => ['#markup' => $q4],
       'ytd' => ['#markup' => $ytd],
     ];
-    return $value;
   }
 
 
@@ -163,6 +198,9 @@ class FormQuarter extends FormBase {
 //    }
 //    $_SESSION['del_id'] = $fid;
 //    $form_state->setRedirect('borg.delete_all_form');
+
+      $values = $form_state->getValues();
+      $this->messenger()->addMessage(print_r($values,true));
   }
 
 }
