@@ -17,19 +17,19 @@ class FormQuarter extends FormBase {
    *
    *  Eg:
    * $this->tableRows = [
-   *   0 => 1,
-   *   1 => 3,
+   *   1 => 1,
+   *   2 => 3,
    * ];
    * Which means table with id 0 has one row and table 1 has 3 rows.
    */
   protected $rowId;
 
-  protected $r = 1;
+  protected $startRow = 1;
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $this->rowId = is_null($this->rowId) ? [
-      $this->r => $this->r,
+      $this->startRow => $this->startRow,
     ] : $this->rowId;
 
     $form['add_table'] = [
@@ -39,40 +39,26 @@ class FormQuarter extends FormBase {
       '#ajax' => [
         'callback' => '::pleaseWork',
         'wrapper' => 'quarter',
-//        'callback' => '::buildTables',
-//        'wrapper' => 'tables',
       ],
     ];
-
-//    $form['add_row'] = [
-//      '#type' => 'submit',
-//      '#value' => $this->t('Add Year'),
-//      '#submit' => ['::addRows'],
-//      '#ajax' => [
-////        'callback' => '::pleaseWork',
-////        'wrapper' => 'quarter',
-//        'callback' => '::buildTable',
-//        'wrapper' => 'table',
-//      ],
-//    ];
 
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
-//      '#submit' => ['::add'],
+      '#ajax' => [
+        'callback' => '::pleaseWork',
+        'wrapper' => 'quarter',
+      ],
     ];
-//    $form['tables'] = [
-//      '#type' => 'container',
-//    ];
-
-    $form['form'] = [
-//      '#type' => 'container',
-//      '#attributes' => ['id' => 'container'],
-      $this->buildTables($form),
+    $form['tables'] = [
+      '#attributes' => ['id' => 'tables'],
+      '#type' => 'container',
+      '#tree' => TRUE,
     ];
     $form['#attributes'] = [
       'id' => 'quarter',
     ];
+    $this->buildTables($form);
 
     return $form;
   }
@@ -88,25 +74,18 @@ class FormQuarter extends FormBase {
   }
 
   function addTable(array &$form, FormStateInterface $form_state) {
-    $this->rowId[] = $this->r;
+    $this->rowId[] = $this->startRow;
     $form_state->setRebuild();
   }
 
-  public function buildTables(array $form) {
-    $form['tables'] = [
-      '#attributes' => ['id' => 'tables'],
-      '#type' => 'container',
-    ];
+  public function buildTables(array &$form) {
     foreach ($this->rowId as $tableId => $rows) {
-      $form['tables'][$tableId] = $this->buildTable($form, $tableId);
+      $this->buildTable($form, $tableId);
     }
-//    for ($i = -1; $i <= $this->table_id; $i++) {
-//      $form['tables'][$i] = $this->buildTable($form, $i);
-//    }
-    return $form['tables'];
+    return $form;
   }
 
-  public function buildTable(array $form, int $tableId) {
+  public function buildTable(array &$form, int $tableId) {
 
     $header = [
       'year' => t('Year'),
@@ -138,8 +117,6 @@ class FormQuarter extends FormBase {
         '#ajax' => [
           'callback' => '::pleaseWork',
           'wrapper' => 'quarter',
-//          'callback' => '::buildTables',
-//          'wrapper' => $tableId,
         ],
       ],
 
@@ -150,57 +127,120 @@ class FormQuarter extends FormBase {
       ],
     ];
 
-    for ($i = $this->rowId[$tableId]; $i > 0; $i--) {
-      $year = date('Y') - $i + $this->r;
-      $form['tables'][$tableId]['table'][$tableId . '-' . $i] = $this->buildRow($year, 0, 0, 0, 0, 0);
+    for ($i = $this->rowId[$tableId]; $i >= $this->startRow; $i--) {
+      $year = date('Y') - $i + $this->startRow;
+      $form['tables'][$tableId]['table'][$i] = $this->buildRow($year);
     }
 
-    return $form['tables'][$tableId];
+    return $form;
   }
 
-  public function buildRow($year, $q1, $q2, $q3, $q4, $ytd) {
+  public function buildRow($year) {
 
-    return [
-      'year' => ['#markup' => $year],
-      'jan' => ['#type' => 'number'],
-      'feb' => ['#type' => 'number'],
-      'mar' => ['#type' => 'number'],
-      'q1' => ['#markup' => $q1],
-      'apr' => ['#type' => 'number'],
-      'may' => ['#type' => 'number'],
-      'jun' => ['#type' => 'number'],
-      'q2' => ['#markup' => $q2],
-      'jul' => ['#type' => 'number'],
-      'aug' => ['#type' => 'number'],
-      'sep' => ['#type' => 'number'],
-      'q3' => ['#markup' => $q3],
-      'oct' => ['#type' => 'number'],
-      'nov' => ['#type' => 'number'],
-      'dec' => ['#type' => 'number'],
-      'q4' => ['#markup' => $q4],
-      'ytd' => ['#markup' => $ytd],
+    $quarters = [
+      'q1' => [
+        'jan',
+        'feb',
+        'mar',
+      ],
+      'q2' => [
+        'apr',
+        'may',
+        'jun',
+      ],
+      'q3' => [
+        'jul',
+        'aug',
+        'sep',
+      ],
+      'q4' => [
+        'oct',
+        'nov',
+        'dec',
+      ],
     ];
+
+    $row['year'] = ['#markup' => $year];
+
+    foreach ($quarters as $quarter => $month) {
+      foreach ($month as $mon) {
+        $row[$mon] = [
+          '#type' => 'number',
+          '#attributes' => [
+            'style' => 'width: 8em;',
+          ],
+        ];
+      }
+      $row[$quarter] = ['#markup' => '<span class="quarter">' . 0 . '</span>'];
+    }
+    $row['ytd'] = ['#markup' => '<span class="summary">' . 0 . '</span>'];
+
+    return $row;
+  }
+
+  public function validateTable(array &$form, FormStateInterface $form_state) {
+
+    $values = $form_state->getValues()['tables'];
+    foreach ($values as $key => $table) {
+      $mergeRows[$key] = [];
+
+      // Record all rows in one numeric array.
+      foreach ($table['table'] as $row) {
+        $mergeRows[$key] = array_merge($mergeRows[$key], array_values($row));
+      }
+
+      // If field is empty return false.
+      $field = 0;
+      foreach ($mergeRows[$key] as $value) {
+        if ($value === "") {
+          $value = 0;
+        }
+        else {
+          $value = 1;
+        }
+        $field += $value;
+      }
+      if ($field == 0) {
+        return FALSE;
+      }
+
+      // If line break return false.
+      $filterTable[$key] = array_filter($mergeRows[$key], function ($value) {
+        return $value !== "";
+      });
+      if ((array_key_last($filterTable[$key]) - array_key_first($filterTable[$key])) != count($filterTable[$key]) - 1) {
+        return FALSE;
+      }
+
+//      if (count($table['table']) == 1) {
+//        $keyOneRow = $key;
+//      }
+
+//      if (array_key_last($filterTable[$keyOneRow]) !== array_key_last($filterTable[$key]) && array_key_first($filterTable[$keyOneRow]) !== array_key_first($filterTable[$key])) {
+//        return FALSE;
+//      }
+
+    }
+
+    return TRUE;
   }
 
 
-    public function submitForm(array &$form, FormStateInterface $form_state) {
-//    $value = $form['table']['#value'];
-//    $connect = Database::getConnection();
-//    $i = 0;
-//    $fid = [];
-//    foreach ($value as $key) {
-//      $output = $connect->select('borg', 'x')
-//        ->fields('x', ['id'])
-//        ->condition('id', $form['table']['#options'][$key]['id'])
-//        ->execute();
-//      $fid[$i] = $output->fetchAssoc();
-//      $i += 1;
-//    }
-//    $_SESSION['del_id'] = $fid;
-//    $form_state->setRedirect('borg.delete_all_form');
+  public function submitForm(array &$form, FormStateInterface $form_state) {
 
-      $values = $form_state->getValues();
-      $this->messenger()->addMessage(print_r($values,true));
+    $valid = $this->validateTable($form, $form_state);
+//    $values = $form_state->getValues()['tables'];
+
+    if ($valid) {
+      $this->messenger()->addStatus("Valid");
+    }
+    else {
+      $this->messenger()->addError("Invalid");
+    }
+
+//    $this->messenger()->addMessage(print_r($values, TRUE));
+//    $form_state->setRebuild();
+    return $form;
   }
 
 }
