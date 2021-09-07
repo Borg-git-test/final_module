@@ -8,18 +8,3 @@ borg.admin.quarter:
   title: 'Quarter'
   parent: system.admin_content
   route_name: borg.quarter
-
-
-
-
-borg.admin.quarter.erer:
-  title: 'QuarterErer'
-  parent: main
-  menu_name: main
-  route_name: borg.quarter.erer
-
-borg.quarter.try:
-  title: 'QuarterTry'
-  parent: main
-  menu_name: main
-  route_name: borg.quarter.try

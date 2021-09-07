@@ -4,17 +4,3 @@ borg.quarter:
     _form: '\Drupal\borg\Form\FormQuarter'
   requirements:
     _permission: 'access content'
-
-borg.quarter.try:
-  path: '/quarter/try'
-  defaults:
-    _form: '\Drupal\borg\Form\FormQuarterTry'
-  requirements:
-    _permission: 'access content'
-
-borg.quarter.erer:
-  path: '/quarter/erer'
-  defaults:
-    _form: '\Drupal\borg\Form\TableForm'
-  requirements:
-    _permission: 'access content'
