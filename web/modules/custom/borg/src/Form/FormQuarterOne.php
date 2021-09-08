@@ -291,7 +291,7 @@ class FormQuarterOne extends FormBase {
             $summaryMonths += (float) $value[$month];
           }
           // Calculate quarter by the formula ((М1+М2+М3)+1)/3.
-          $summaryQuart = $summaryMonths == 0 ? 0 : ($summaryMonths + 1) / 3;
+          $summaryQuart = ($summaryMonths + 1) / 3;
           // Record quarter result in appropriate cell with rounding.
           $form['tables'][$key]['table'][$row][$quarter]['#markup'] = round($summaryQuart, 2);
           // Calculate summary year.
