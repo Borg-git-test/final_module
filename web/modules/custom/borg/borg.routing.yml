@@ -1,6 +1,13 @@
-borg.quarter:
-  path: '/quarter'
+borg.quarter.one:
+  path: '/quarter/one'
   defaults:
-    _form: '\Drupal\borg\Form\FormQuarter'
+    _form: '\Drupal\borg\Form\FormQuarterOne'
+  requirements:
+    _permission: 'access content'
+
+borg.quarter.two:
+  path: '/quarter/two'
+  defaults:
+    _form: '\Drupal\borg\Form\FormQuarterTwo'
   requirements:
     _permission: 'access content'

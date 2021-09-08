@@ -1,10 +1,22 @@
-borg.quarter:
-  title: 'Quarter'
+borg.quarter.one:
+  title: 'Quarter one'
   parent: main
   menu_name: main
-  route_name: borg.quarter
+  route_name: borg.quarter.one
 
-borg.admin.quarter:
-  title: 'Quarter'
+borg.admin.quarter.one:
+  title: 'Quarter one'
   parent: system.admin_content
-  route_name: borg.quarter
+  route_name: borg.quarter.one
+
+
+borg.quarter.two:
+  title: 'Quarter two'
+  parent: main
+  menu_name: main
+  route_name: borg.quarter.two
+
+borg.admin.quarter.two:
+  title: 'Quarter two'
+  parent: system.admin_content
+  route_name: borg.quarter.two

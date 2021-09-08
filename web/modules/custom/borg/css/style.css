@@ -1,0 +1,37 @@
+#tables {
+  margin-inline: -150px;
+}
+form .button, form .button:first-child {
+  margin-left: 0;
+  margin-right: 1em;
+}
+
+table tr td {
+  padding: 0;
+  text-align: center;
+  width: 5.5%;
+}
+
+table tr th {
+  text-align: center;
+}
+
+.form-number {
+  border-radius: 3px;
+}
+
+.quarter, .result, .year {
+  color: white;
+  padding-block: 2px;
+  border-radius: 3px;
+}
+
+.quarter {
+  background: #5d7585;
+}
+.result {
+  background: #00836d;
+}
+.year {
+  background: #81c071;
+}
