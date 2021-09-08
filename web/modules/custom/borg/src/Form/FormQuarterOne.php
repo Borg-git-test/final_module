@@ -116,10 +116,13 @@ class FormQuarterOne extends FormBase {
   }
 
   /**
-   * Rebuild form function from ajax.
+   * Update form function from ajax.
+   *
+   * @param array $callback
+   *   Return form array.
    */
-  public function ajaxCallback($pleaseWork) {
-    return $pleaseWork;
+  public function ajaxCallback(array $callback): array {
+    return $callback;
   }
 
   /**
@@ -141,6 +144,11 @@ class FormQuarterOne extends FormBase {
 
   /**
    * Build table with multiple rows.
+   *
+   * @param array $form
+   *   Record in form.
+   * @param int $tableId
+   *   This id table.
    */
   public function buildTable(array &$form, int $tableId): array {
 
@@ -196,8 +204,11 @@ class FormQuarterOne extends FormBase {
 
   /**
    * Build row.
+   *
+   * @param int $year
+   *   Year for row.
    */
-  public function buildRow($year): array {
+  public function buildRow(int $year): array {
 
     $row['year'] = [
       '#markup' => $year,
